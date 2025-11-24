@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Absensi GPS Otomatis</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    button { padding: 12px 20px; font-size: 16px; cursor: pointer; }
+    #status { margin-top: 20px; font-size: 18px; }
+  </style>
+</head>
+<body>
+  <h2>Absensi Otomatis dengan GPS</h2>
+  <p>Masukkan nama Anda lalu klik tombol di bawah untuk absen.</p>
+
+  <input type="text" id="nama" placeholder="Nama Anda" style="padding:10px; width:80%; font-size:16px;">
+  <br><br>
+
+  <button onclick="absen()">ABSEN SEKARANG</button>
+
+  <div id="status"></div>
+
+  <script>
+    const scriptURL = "PASTE_URL_WEB_APP_ANDA_DI_SINI"; // Ganti dengan URL Apps Script Anda
+
+    function absen() {
+      const nama = document.getElementById('nama').value.trim();
+      if (!nama) {
+        document.getElementById('status').innerText = "Mohon masukkan nama terlebih dahulu.";
+        return;
+      }
+
+      if (!navigator.geolocation) {
+        document.getElementById('status').innerText = "Browser tidak mendukung GPS.";
+        return;
+      }
+
+      document.getElementById('status').innerText = "Mengambil lokasi...";
+
+      navigator.geolocation.getCurrentPosition(
+        position => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+
+          const url = `${scriptURL}?nama=${encodeURIComponent(nama)}&lat=${lat}&lng=${lng}`;
+
+          fetch(url)
+            .then(res => res.text())
+            .then(msg => {
+              document.getElementById('status').innerText = msg;
+            })
+            .catch(err => {
+              document.getElementById('status').innerText = "Gagal mengirim data.";
+            });
+        },
+        error => {
+          document.getElementById('status').innerText = "GPS gagal diakses. Izinkan lokasi terlebih dahulu.";
+        }
+      );
+    }
+  </script>
+</body>
+</html>
